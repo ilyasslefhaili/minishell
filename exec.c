@@ -6,7 +6,7 @@
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/05 04:58:08 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/05 06:47:19 by ytouate          ###   ########.fr       */
+/*   Updated: 2022/05/05 06:54:41 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,8 +53,8 @@ void ft_echo(int size, char **s, char flag)
 	i = 0;
 	char *to_be_printed;
 	to_be_printed = ft_join(s, size);
-	if (flag == 'n');
-		// todo
+	if (flag == 'n')
+		write(1, to_be_printed, ft_strlen(to_be_printed));
 	else
 	{
 		write(1, to_be_printed, ft_strlen(to_be_printed));
@@ -78,7 +78,12 @@ int main(int ac, char **av)
 	if (ac > 1)
 	{
 		if (ft_strcmp(av[1], "echo") == 0)
-			ft_echo(ac, av, '\0');
+		{
+			if (ft_strcmp(av[2], "-n") == 0)
+				ft_echo(ac, av, 'n');
+			else
+				ft_echo(ac, av, '\0');
+		}
 		else if (ft_strcmp(av[1], "cd") == 0)
 			;
 		else
