@@ -6,7 +6,7 @@
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/05 04:58:08 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/05 06:54:41 by ytouate          ###   ########.fr       */
+/*   Updated: 2022/05/05 07:58:17 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,13 @@ int ft_strcmp(char *s, char *str)
 	}
 	return (0);
 }
+void ft_cd(char **s)
+{
+	if (chdir(s[2]) == 0)
+		printf("directory changed\n");
+	else
+		perror("Error");
+}
 int main(int ac, char **av)
 {
 	if (ac > 1)
@@ -85,7 +92,7 @@ int main(int ac, char **av)
 				ft_echo(ac, av, '\0');
 		}
 		else if (ft_strcmp(av[1], "cd") == 0)
-			;
+			ft_cd(av);
 		else
 			write(2, "command not found\n", 19);
 	}

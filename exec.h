@@ -6,7 +6,7 @@
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/05 04:54:13 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/05 06:48:45 by ytouate          ###   ########.fr       */
+/*   Updated: 2022/05/05 07:33:04 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@
 #include <termios.h>
 #include <sys/ioctl.h>
 #include <dirent.h>
+#include <fcntl.h>
 
 
 #endif
