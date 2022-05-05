@@ -6,11 +6,12 @@
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/05 04:58:08 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/05 10:15:24 by ytouate          ###   ########.fr       */
+/*   Updated: 2022/05/05 21:06:18 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "exec.h"
+#include <limits.h>
 char *ft_join(char **s, int size)
 {
 	int total_lenght;
@@ -61,27 +62,44 @@ int ft_strcmp(char *s, char *str)
 	}
 	return (0);
 }
-void ft_cd(char **s)
+void ft_cd(char *s)
 {
-	if (chdir(s[2]) == 0)
+	if (chdir(s) == 0)
 		printf("directory changed\n");
 	else
 		perror("Error");
 }
 void ft_pwd(void)
 {
-	char buffer[100];
+	char buffer[FILENAME_MAX];
 	getcwd(buffer, 100);
 	printf("%s\n", buffer);
+}
+char *get_promt()
+{
+	char *cmd;
+	cmd = readline("Exec: ");
+	if (cmd == NULL)
+		exit(EXIT_SUCCESS);
+	return (cmd);
+}
+void sig_handler(int sig)
+{
+	if (sig == SIGQUIT)
+		(void)0;
 }
 int main(int ac, char **av)
 {
 	char *cmd;
 	char *temp;
 	(void)ac;
-	while (1)
+	(void)av;
+	int is_on = 1;
+	while (is_on)
 	{
-		cmd = readline("Exec: ");
+		// signal(SIGINT, sig_handler);
+		signal(SIGQUIT, sig_handler);
+		cmd = get_promt();
 		if (ft_strcmp(cmd, "echo") == 0)
 		{
 			temp = readline("what to print ?: ");
@@ -93,9 +111,14 @@ int main(int ac, char **av)
 			ft_echo(temp, 'n');
 		}
 		else if (ft_strcmp(cmd, "cd") == 0)
-			ft_cd(av);
+		{
+			temp = readline("which directory: ");
+			ft_cd(temp);
+		}
 		else if (ft_strcmp(cmd, "pwd") == 0)
 			ft_pwd();
+		else if (ft_strcmp(cmd, "exit") == 0)
+			exit(EXIT_SUCCESS);
 		else
 			write(2, "command not found\n", 19);
 	}
