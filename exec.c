@@ -6,21 +6,11 @@
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/05 04:58:08 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/05 07:58:17 by ytouate          ###   ########.fr       */
+/*   Updated: 2022/05/05 10:15:24 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <string.h>
 #include "exec.h"
-
-int ft_strlen(char *s)
-{
-	int count;
-	count = 0;
-	while (*s++)
-		count++;
-	return (count);
-}
 char *ft_join(char **s, int size)
 {
 	int total_lenght;
@@ -47,17 +37,15 @@ char *ft_join(char **s, int size)
 	joined_str[k] = '\0';
 	return (joined_str);
 }
-void ft_echo(int size, char **s, char flag)
+void ft_echo(char *s, char flag)
 {
 	int	i;
 	i = 0;
-	char *to_be_printed;
-	to_be_printed = ft_join(s, size);
 	if (flag == 'n')
-		write(1, to_be_printed, ft_strlen(to_be_printed));
+		write(1, s, ft_strlen(s));
 	else
 	{
-		write(1, to_be_printed, ft_strlen(to_be_printed));
+		write(1, s, ft_strlen(s));
 		write(1, "\n", 1);
 	}
 }
@@ -80,21 +68,35 @@ void ft_cd(char **s)
 	else
 		perror("Error");
 }
+void ft_pwd(void)
+{
+	char buffer[100];
+	getcwd(buffer, 100);
+	printf("%s\n", buffer);
+}
 int main(int ac, char **av)
 {
-	if (ac > 1)
+	char *cmd;
+	char *temp;
+	(void)ac;
+	while (1)
 	{
-		if (ft_strcmp(av[1], "echo") == 0)
+		cmd = readline("Exec: ");
+		if (ft_strcmp(cmd, "echo") == 0)
 		{
-			if (ft_strcmp(av[2], "-n") == 0)
-				ft_echo(ac, av, 'n');
-			else
-				ft_echo(ac, av, '\0');
+			temp = readline("what to print ?: ");
+			ft_echo(temp, '\0');
 		}
-		else if (ft_strcmp(av[1], "cd") == 0)
+		else if (ft_strcmp(cmd, "echo -n")== 0)
+		{
+			temp = readline("what to print ?: ");
+			ft_echo(temp, 'n');
+		}
+		else if (ft_strcmp(cmd, "cd") == 0)
 			ft_cd(av);
+		else if (ft_strcmp(cmd, "pwd") == 0)
+			ft_pwd();
 		else
 			write(2, "command not found\n", 19);
 	}
-	
 }
