@@ -6,7 +6,7 @@
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/05 04:58:08 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/05 21:06:18 by ytouate          ###   ########.fr       */
+/*   Updated: 2022/05/06 14:33:04 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,8 @@ int ft_strcmp(char *s, char *str)
 }
 void ft_cd(char *s)
 {
+	if (!s)
+		return ;
 	if (chdir(s) == 0)
 		printf("directory changed\n");
 	else
@@ -87,17 +89,44 @@ void sig_handler(int sig)
 {
 	if (sig == SIGQUIT)
 		(void)0;
+	if (sig == SIGINT)
+	{
+		rl_on_new_line();
+	}
 }
-int main(int ac, char **av)
+void ft_execute(char *cmd, char **av, char **env)
 {
-	char *cmd;
-	char *temp;
+	int id;
+	id = fork();
+	if (id == 0)
+	{
+		char *path = "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/munki";
+		char **command_path = ft_split(path, ':');
+		int i = 0;
+		(void)cmd;
+		while (command_path[i])
+		{
+			command_path[i] = ft_strjoin(command_path[i], "/");
+			printf("\n|%s|\n", cmd);
+			command_path[i] = ft_strjoin(command_path[i], cmd);
+			if (access(command_path[i], F_OK) == 0)
+				execve(command_path[i], av, env);
+			i++;
+		}
+		printf("command not found\n");
+	}
+	kill(0, SIGINT);
+
+}
+int main(int ac, char **av, char **env)
+{
+	char	*cmd;
+	char	*temp;
 	(void)ac;
 	(void)av;
-	int is_on = 1;
-	while (is_on)
+	while (1)
 	{
-		// signal(SIGINT, sig_handler);
+		signal(SIGINT, sig_handler);
 		signal(SIGQUIT, sig_handler);
 		cmd = get_promt();
 		if (ft_strcmp(cmd, "echo") == 0)
@@ -120,6 +149,6 @@ int main(int ac, char **av)
 		else if (ft_strcmp(cmd, "exit") == 0)
 			exit(EXIT_SUCCESS);
 		else
-			write(2, "command not found\n", 19);
+			ft_execute(cmd, av, env);
 	}
 }

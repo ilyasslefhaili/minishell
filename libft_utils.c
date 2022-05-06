@@ -6,7 +6,7 @@
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/05 09:56:06 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/05 10:08:04 by ytouate          ###   ########.fr       */
+/*   Updated: 2022/05/06 13:33:51 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,4 +93,45 @@ char	**ft_split(char *s, char c)
 	}
 	result[index] = NULL;
 	return (result);
+}
+char	*ft_strcpy(char *dst,  char *src)
+{
+	char	*saved;
+
+	saved = dst;
+	while (*src)
+	{
+		*dst++ = *src++;
+	}
+	*dst = '\0';
+	return (saved);
+}
+
+char	*ft_strcat(char *dst,  char *src)
+{
+	size_t	dst_len;
+	char	*string;
+
+	dst_len = ft_strlen (dst);
+	string = dst + dst_len;
+	while (*src)
+	{
+		*string++ = *src++;
+	}
+	*string = '\0';
+	return (dst);
+}
+
+char	*ft_strjoin(char  *s1, char  *s2)
+{
+	char	*string;
+
+	if (!s1)
+		return (NULL);
+	string = malloc((ft_strlen(s1) + ft_strlen(s2) + 1) * sizeof(char));
+	if (!string)
+		return (NULL);
+	ft_strcpy (string, s1);
+	ft_strcat (string, s2);
+	return (string);
 }
