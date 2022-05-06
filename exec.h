@@ -6,7 +6,7 @@
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/05 04:54:13 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/06 13:33:59 by ytouate          ###   ########.fr       */
+/*   Updated: 2022/05/06 18:14:40 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <string.h>
 char	*ft_substr(char  *s, int start, int len);
 int	get_parts(char  *s, char c);
 char	**ft_split(char  *s, char c);
