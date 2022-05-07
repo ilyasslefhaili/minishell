@@ -6,38 +6,14 @@
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/05 04:58:08 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/06 21:41:26 by ytouate          ###   ########.fr       */
+/*   Updated: 2022/05/07 12:02:24 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "exec.h"
 #include <limits.h>
-char *ft_join(char **s, int size)
-{
-	int total_lenght;
-	int i;
-	int j;
-	int	k;
-	char *joined_str;
+#include "get_next_line.h"
 
-	i = 1;
-	k = 0;
-	total_lenght = 0;
-	while (i < size)
-		total_lenght += ft_strlen(s[i++]);
-	joined_str = malloc(sizeof(char) * (total_lenght + 1) + (i - 2));
-	i = 0;
-	while (++i < size)
-	{
-		j = 0;
-		while (j < ft_strlen(s[i]))
-			joined_str[k++] = s[i][j++];
-		if (i != size -1)
-			joined_str[k++] = ' ';
-	}
-	joined_str[k] = '\0';
-	return (joined_str);
-}
 void ft_echo(char *s, char flag)
 {
 	int	i;
@@ -64,10 +40,7 @@ int ft_strcmp(char *s, char *str)
 }
 void ft_cd(char *s)
 {
-	if (!s)
-		return ;
-	if (chdir(s) == 0)
-		printf("directory changed\n");
+	if (chdir(s) == 0);
 	else
 		perror("Error");
 }
@@ -99,6 +72,13 @@ void ft_execute(char *cmd, char **av, char **env)
 {
 	(void)av;
 	char **test = ft_split(cmd, ' ');
+	if (ft_strcmp(test[0], "cd") == 0)
+	{
+		printf("here\n");
+		if (test[1] != NULL)
+			chdir(test[1]);
+		return ;
+	}
 	if (fork() == 0)
 	{
 		char *path = "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/munki";
@@ -130,20 +110,33 @@ char **fill_argv(char *cmd)
 	result[j] = NULL;
 	return (result);
 }
+void ft_redirect(int ac, char **av)
+{
+	(void)ac;
+	(void)av;
+	char *temp;
+	int flag = 1;
+	while (flag)
+	{
+		temp = get_next_line(1);
+		if (!temp) 
+			flag = 0;
+		printf("%s\n", temp);
+	}
+}
 int main(int ac, char **av, char **env)
 {
 	char	*cmd;
 	(void)ac;
 	(void)av;
+	ft_redirect(ac, av);
 	while (1)
 	{
 		signal(SIGINT, sig_handler);
 		signal(SIGQUIT, sig_handler);
 		cmd = get_promt();
 		if (strcmp(cmd, "exit") == 0)
-		{
 			exit(0);
-		}
 		ft_execute(cmd, av, env);
 	}
 }
