@@ -1,25 +1,38 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*   ft_strlcpy.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/12/03 17:58:56 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/09 17:14:47 by ytouate          ###   ########.fr       */
+/*   Created: 2021/11/11 09:34:45 by ytouate           #+#    #+#             */
+/*   Updated: 2021/11/11 16:02:13 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
-# define GET_NEXT_LINE_H
-#include "./libft/libft.h"
-# include<stdio.h> 
-# include <fcntl.h> 
-# include <stdlib.h>
-# include <unistd.h>
-# include <limits.h>
-#define BUFFER_SIZE 1
-int			ft_strchr_gnl(const char *s, int c);
-char		*get_next_line(int fd);
-char	*ft_strjoin_gnl(char *s1, char const *s2);
-#endif
+#include "libft.h"
+
+size_t	ft_strlcpy(char *restrict dst, const char *restrict src, size_t dstsize)
+{
+	size_t	index;
+
+	index = 0;
+	if (dstsize > 0)
+	{
+		while (src[index] && index < dstsize - 1)
+		{
+			if (index == dstsize)
+			{
+				index--;
+			}
+			dst[index] = src[index];
+			index++;
+		}
+		dst[index] = '\0';
+	}
+	while (src[index] != '\0')
+	{
+		index++;
+	}
+	return (index);
+}

@@ -6,7 +6,7 @@
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/05 04:58:08 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/09 11:06:01 by ytouate          ###   ########.fr       */
+/*   Updated: 2022/05/09 21:06:56 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,48 +26,31 @@ void ft_echo(char *s, char flag)
 		write(1, "\n", 1);
 	}
 }
-int ft_strcmp(char *s, char *str)
+
+char *get_promt(char *cmd)
 {
-	int i;
-	i = 0;
-	while (s[i] || str[i])
+	if (cmd)
 	{
-		if (s[i] != str[i])
-			return (1);
-		i++;
+		free(cmd);
+		cmd = (char *)NULL;
 	}
-	return (0);
-}
-void ft_cd(char *s)
-{
-	if (chdir(s) == 0);
-	else
-		perror("Error");
-}
-void ft_pwd(void)
-{
-	char buffer[FILENAME_MAX];
-	getcwd(buffer, 100);
-	printf("%s\n", buffer);
-}
-char *get_promt()
-{
-	char *cmd;
 	cmd = readline("Exec: ");
-	if (cmd == NULL)
-		exit(EXIT_SUCCESS);
+	if (cmd && *cmd)
+		add_history(cmd);
 	return (cmd);
 }
+
 void sig_handler(int sig)
 {
 	(void)sig;
-	// if (sig == SIGQUIT)
-	// 	(void)0;
+	if (sig == SIGQUIT)
+		(void)0;
 	if (sig == SIGINT)
 	{
 		write(2, "hello world\n", 13);
 	}
 }
+
 char *get_path(char *cmd)
 {
 	char *path = "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/munki";
@@ -83,23 +66,18 @@ char *get_path(char *cmd)
 	}
 	return NULL;
 }
-void ft_execute(char *cmd, char **av, char **env)
+
+void ft_execute(char *cmd, char **env)
 {
-	(void)av;
 	char **test = ft_split(cmd, ' ');
-	if (ft_strcmp(test[0], "cd") == 0)
-	{
-		printf("here\n");
-		if (test[1] != NULL)
-			chdir(test[1]);
-		return ;
-	}
 	if (fork() == 0)
 	{
 		char *command_path = get_path(test[0]);
+		if (command_path == NULL)
+			perror("Error: ");
 		if (access(command_path, F_OK) == 0)
 			execve(command_path, test, env);
-		printf("command not found\n");
+		perror("Error: ");
 		exit(EXIT_SUCCESS);
 	}
 	wait(NULL);
@@ -116,7 +94,7 @@ void ft_redirect_output(char *cmd, char *file, char **env)
 	{
 		char *path = get_path(command_args[0]);
 		if (path == NULL)
-			write(2, "Command Not Found\n", 19);
+			perror("Error: ");
 		else
 		{
 			dup2(fd, STDOUT_FILENO);
@@ -148,11 +126,49 @@ void ft_redirect_output_2(char *cmd, char *file, char **env)
 	}
 	wait(NULL);
 }
+
+void ft_herdoc(char *delimeter)
+{
+	char *temp;
+	char *result = ft_strdup("");
+	temp = readline(">>");
+	while (ft_strnstr(temp, delimeter, ft_strlen(temp)) == NULL && ft_strlen(temp) != ft_strlen(delimeter))
+	{
+		result = ft_strjoin(result, temp);
+		result = ft_strjoin(result, "\n");
+		temp = readline(">>");
+	}
+	if (result && *result)
+		printf("%s\n", result);
+}
+
+int ft_strcmp(char *s, char *str)
+{
+	int i = 0;
+	while(s[i] || str[i])
+	{
+		if (s[i] != str[i])
+			return 1;
+		i++;
+	}
+	return (0);
+}
+
+void ft_cd(char **env)
+{	
+}
 int main(int ac, char **av, char **env)
 {
 	(void)ac;
-	// ft_execute(av[1], av, env);
-	// ft_redirect_output_2(av[1], "file.", env);
-	ft_redirect_output(av[1], "file.txt", env);
-	
+	(void)env;
+	(void)av;
+	char *cmd;
+	cmd = NULL;
+	signal(SIGQUIT, SIG_IGN);
+	// 
+	// ft_herdoc(av[1]); // it is given a delimeter then reads the input until a line containing the delimeter is seen
+	// ft_echo(av[1], 'n'); // like the echo bash function printf the argument passed to it -n means print the parameter without new line at the end
+	// ft_execute(av[1], env); // excute the commands that can be excuted such as ls / grep / pwd / cat / head / tail ...
+	// ft_redirect_output_2(av[1], "file.", env); // used to redirect the output of a command to a file stream using the following syntax : cmd > file
+	// ft_redirect_output(av[1], "file.txt", env); // used to append the output of a command to a given file using the following syntax : cmd >> file
 }

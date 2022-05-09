@@ -1,25 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*   ft_strncmp.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/12/03 17:58:56 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/09 17:14:47 by ytouate          ###   ########.fr       */
+/*   Created: 2021/11/08 10:16:47 by ytouate           #+#    #+#             */
+/*   Updated: 2021/11/16 21:07:36 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
-# define GET_NEXT_LINE_H
-#include "./libft/libft.h"
-# include<stdio.h> 
-# include <fcntl.h> 
-# include <stdlib.h>
-# include <unistd.h>
-# include <limits.h>
-#define BUFFER_SIZE 1
-int			ft_strchr_gnl(const char *s, int c);
-char		*get_next_line(int fd);
-char	*ft_strjoin_gnl(char *s1, char const *s2);
-#endif
+#include "libft.h"
+
+int	ft_strncmp(const char *s1, const char *s2, size_t n)
+
+{
+	size_t	index;
+
+	index = 0;
+	while (((unsigned char)s1[index] || (unsigned char)s2[index]) && index < n)
+	{
+		if (((unsigned char)s1[index] != (unsigned char)s2[index]))
+		{
+			return (((unsigned char)s1[index]) - (unsigned char)s2[index]);
+		}
+		index++;
+	}
+	return (0);
+}

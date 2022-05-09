@@ -6,7 +6,7 @@
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/03 18:03:04 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/07 11:41:15 by ytouate          ###   ########.fr       */
+/*   Updated: 2022/05/09 17:18:36 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,6 @@ char	*ft_get_line(char *buf)
 	temp[i] = '\0';
 	return (temp);
 }
-
 char	*ft_save_left(char *buf)
 {
 	char	*temp;
@@ -82,7 +81,7 @@ char	*loop(char *save, char *buffer, int byte, int fd)
 			return (NULL);
 		}	
 		buffer[byte] = '\0';
-		save = ft_strjoin(save, buffer);
+		save = ft_strjoin_gnl(save, buffer);
 	}
 	free(buffer);
 	return (save);

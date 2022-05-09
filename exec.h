@@ -6,7 +6,7 @@
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/05 04:54:13 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/07 11:46:44 by ytouate          ###   ########.fr       */
+/*   Updated: 2022/05/09 21:08:41 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define EXEC_H
 
 #include <stdio.h>
+#include "./libft/libft.h"
 #include <sys/types.h>
 #include <sys/uio.h>
 #include <unistd.h>
@@ -32,7 +33,13 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <string.h>
+#include <sys/stat.h>
+
+typedef struct s_list{
+    char *s val;
+    struct s_list *next;
+}t_list;
+
 int	get_parts(char  *s, char c);
-char	**ft_split(char  *s, char c);
 // char	*get_next_line(int fd);
 #endif

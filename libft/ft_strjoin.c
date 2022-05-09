@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line_utils.c                              :+:      :+:    :+:   */
+/*   ft_strjoin.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/12/03 18:01:46 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/09 17:17:11 by ytouate          ###   ########.fr       */
+/*   Created: 2021/11/12 20:14:49 by ytouate           #+#    #+#             */
+/*   Updated: 2021/11/21 15:10:09 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "libft.h"
 
 static char	*ft_strcpy(char *dst, const char *src)
 {
@@ -40,42 +40,16 @@ static char	*ft_strcat(char *dst, const char *src)
 	return (dst);
 }
 
-char	*ft_strjoin_gnl(char *s1, char const *s2)
+char	*ft_strjoin(char const *s1, char const *s2)
 {
 	char	*string;
 
 	if (!s1)
-	{
-		s1 = malloc (1 * sizeof(char));
-		s1[0] = '\0';
-	}
+		return (NULL);
 	string = malloc((ft_strlen(s1) + ft_strlen(s2) + 1) * sizeof(char));
 	if (!string)
-	{
-		free (string);
-		string = NULL;
 		return (NULL);
-	}
 	ft_strcpy (string, s1);
 	ft_strcat (string, s2);
-	free (s1);
 	return (string);
-}
-
-int	ft_strchr_gnl(const char *s, int c)
-{
-	int	index;
-
-	index = 0;
-	if (!s)
-		return (1);
-	while (s[index] && s[index] != (char )c)
-	{
-		index++;
-	}
-	if (s[index] == (char)c)
-	{
-		return (1);
-	}
-	return (0);
 }

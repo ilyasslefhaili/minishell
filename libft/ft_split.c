@@ -1,51 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   libft_utils.c                                      :+:      :+:    :+:   */
+/*   ft_split.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/05/05 09:56:06 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/07 12:02:32 by ytouate          ###   ########.fr       */
+/*   Created: 2021/11/14 18:32:45 by ytouate           #+#    #+#             */
+/*   Updated: 2021/11/21 12:58:31 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "exec.h"
-#include "get_next_line.h"
-char	*ft_substr(char *s, size_t start, size_t len)
-{
-	char			*sub_s;
-	size_t			sub_index;
-	size_t	i;
+#include "libft.h"
 
-	if (!s)
-		return (NULL);
-	sub_index = 0;
-	i = 0;
-	if (start >= ft_strlen(s))
-	{
-        char *temp;
-        temp = malloc(sizeof(char));
-        temp[0] ='\0';
-        return (temp);
-    }
-	if (len > ft_strlen(s))
-		len = ft_strlen(s);
-	sub_s = (char *)malloc((len + 1) * sizeof(char));
-	if (!sub_s)
-		return (NULL);
-	while (s[i])
-	{
-		if (i >= start && sub_index < len)
-		{
-			sub_s[sub_index++] = s[i];
-		}
-		i++;
-	}
-	sub_s[sub_index] = '\0';
-	return (sub_s);
-}
-int	get_parts(char *s, char c)
+static int	get_parts(char const *s, char c)
 {
 	int	n;
 	int	i;
@@ -60,7 +27,8 @@ int	get_parts(char *s, char c)
 	}
 	return (n);
 }
-char	**ft_split(char *s, char c)
+
+char	**ft_split(char const *s, char c)
 {
 	int		index;
 	char	**result;

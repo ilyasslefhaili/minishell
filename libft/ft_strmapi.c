@@ -1,25 +1,37 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*   ft_strmapi.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/12/03 17:58:56 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/09 17:14:47 by ytouate          ###   ########.fr       */
+/*   Created: 2021/11/15 17:39:55 by ytouate           #+#    #+#             */
+/*   Updated: 2021/11/21 11:52:20 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
-# define GET_NEXT_LINE_H
-#include "./libft/libft.h"
-# include<stdio.h> 
-# include <fcntl.h> 
-# include <stdlib.h>
-# include <unistd.h>
-# include <limits.h>
-#define BUFFER_SIZE 1
-int			ft_strchr_gnl(const char *s, int c);
-char		*get_next_line(int fd);
-char	*ft_strjoin_gnl(char *s1, char const *s2);
-#endif
+#include "libft.h"
+
+char	*ft_strmapi(char const *s, char (*f)(unsigned int, char))
+{
+	int		i;
+	int		j;
+	char	*string;
+
+	if (!s)
+		return (NULL);
+	i = 0;
+	j = ft_strlen(s);
+	string = malloc(j + 1 * sizeof(char));
+	if (!string)
+	{
+		return (NULL);
+	}
+	while (s[i] && i < j)
+	{
+		string[i] = f(i, s[i]);
+		i++;
+	}
+	string[i] = '\0';
+	return (string);
+}
