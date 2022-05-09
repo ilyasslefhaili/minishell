@@ -6,7 +6,7 @@
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/05 04:58:08 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/07 12:02:24 by ytouate          ###   ########.fr       */
+/*   Updated: 2022/05/09 11:06:01 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,21 @@ void sig_handler(int sig)
 		write(2, "hello world\n", 13);
 	}
 }
+char *get_path(char *cmd)
+{
+	char *path = "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/munki";
+	char **command_path = ft_split(path, ':');
+	int i = 0;
+	while (command_path[i])
+	{
+		command_path[i] = ft_strjoin(command_path[i], "/");
+		command_path[i] = ft_strjoin(command_path[i], cmd);
+		if (access(command_path[i], F_OK) == 0)
+			return (command_path[i]);
+		i++;
+	}
+	return NULL;
+}
 void ft_execute(char *cmd, char **av, char **env)
 {
 	(void)av;
@@ -81,62 +96,63 @@ void ft_execute(char *cmd, char **av, char **env)
 	}
 	if (fork() == 0)
 	{
-		char *path = "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/munki";
-		char **command_path = ft_split(path, ':');
-		int i = 0;
-		while (command_path[i])
-		{
-			command_path[i] = ft_strjoin(command_path[i], "/");
-			command_path[i] = ft_strjoin(command_path[i], test[0]);
-			if (access(command_path[i], F_OK) == 0)
-				execve(command_path[i], test, env);
-			i++;
-		}
+		char *command_path = get_path(test[0]);
+		if (access(command_path, F_OK) == 0)
+			execve(command_path, test, env);
 		printf("command not found\n");
 		exit(EXIT_SUCCESS);
 	}
 	wait(NULL);
 }
-char **fill_argv(char *cmd)
+
+void ft_redirect_output(char *cmd, char *file, char **env)
 {
-	int size = get_parts(cmd, ' ');
-	char **result = malloc(sizeof(char *) * size + 1);
-	char **temp = ft_split(cmd, ' ');
-	int i = 0;
-	int j = 0;
-	// result[j++] = strdup("./exec");
-	while (cmd[i])
-		result[j++] = temp[i++];
-	result[j] = NULL;
-	return (result);
-}
-void ft_redirect(int ac, char **av)
-{
-	(void)ac;
-	(void)av;
-	char *temp;
-	int flag = 1;
-	while (flag)
+	int fd;
+	fd = open(file, O_CREAT | O_RDWR | O_TRUNC , 0644);
+	if (fd == -1)
+		perror("Error: ");
+	char **command_args = ft_split(cmd, ' ');
+	if (fork() == 0)
 	{
-		temp = get_next_line(1);
-		if (!temp) 
-			flag = 0;
-		printf("%s\n", temp);
+		char *path = get_path(command_args[0]);
+		if (path == NULL)
+			write(2, "Command Not Found\n", 19);
+		else
+		{
+			dup2(fd, STDOUT_FILENO);
+			execve(path, command_args, env);
+		}
+		exit(EXIT_SUCCESS);
 	}
+	wait(NULL);
+}
+
+void ft_redirect_output_2(char *cmd, char *file, char **env)
+{
+	int fd;
+	fd = open(file, O_CREAT | O_RDWR | O_APPEND, 0644);
+	if (fd == -1)
+		perror("Error: ");
+	char **command_args = ft_split(cmd, ' ');
+	if (fork() == 0)
+	{
+		char *path = get_path(command_args[0]);
+		if (path == NULL)
+			perror("Error: ");
+		else
+		{
+			dup2( fd, STDOUT_FILENO);
+			execve(path, command_args, env);
+		}	
+		exit(EXIT_SUCCESS);
+	}
+	wait(NULL);
 }
 int main(int ac, char **av, char **env)
 {
-	char	*cmd;
 	(void)ac;
-	(void)av;
-	ft_redirect(ac, av);
-	while (1)
-	{
-		signal(SIGINT, sig_handler);
-		signal(SIGQUIT, sig_handler);
-		cmd = get_promt();
-		if (strcmp(cmd, "exit") == 0)
-			exit(0);
-		ft_execute(cmd, av, env);
-	}
+	// ft_execute(av[1], av, env);
+	// ft_redirect_output_2(av[1], "file.", env);
+	ft_redirect_output(av[1], "file.txt", env);
+	
 }
