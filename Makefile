@@ -6,12 +6,12 @@
 #    By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/05/05 05:15:55 by ytouate           #+#    #+#              #
-#    Updated: 2022/05/10 12:59:47 by ytouate          ###   ########.fr        #
+#    Updated: 2022/05/11 12:32:15 by ytouate          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -fsanitize=address -g
 NAME = exec
 LIBFT = ./libft/libft.a
 FILES = exec.c get_next_line.c get_next_line_utils.c
