@@ -6,7 +6,7 @@
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/05 04:54:13 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/10 17:22:50 by ytouate          ###   ########.fr       */
+/*   Updated: 2022/05/11 21:32:36 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,5 +37,6 @@
 
 int	get_parts(char  *s, char c);
 void sort_list(t_list **env_list);
+void ft_setenv(t_list **env_list, char *var_name, char *var_val);
 // char	*get_next_line(int fd);
 #endif

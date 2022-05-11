@@ -6,7 +6,7 @@
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/05 04:58:08 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/11 12:34:43 by ytouate          ###   ########.fr       */
+/*   Updated: 2022/05/11 21:34:05 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,9 +46,7 @@ void sig_handler(int sig)
 	if (sig == SIGQUIT)
 		(void)0;
 	if (sig == SIGINT)
-	{
-		write(2, "hello world\n", 13);
-	}
+		exit(EXIT_SUCCESS);
 }
 
 char *get_path(char *cmd)
@@ -167,7 +165,7 @@ t_list *get_env_list(char **env)
 	t_list *env_list;
 	int i = 0;
 	env_list = ft_lstnew(env[i++]);
-	while (env[i])
+	while (env[i + 1])
 	{
 		t_list *temp;
 		temp = ft_lstnew(ft_strdup(env[i]));
@@ -186,64 +184,53 @@ void ft_env(t_list *env_list)
 	}
 }
 
-void ft_export(t_list *env)
+void ft_export(t_list *env, char *arg)
 {
-	sort_list(&env);
-	while (env->next)
+	if (arg == NULL)
 	{
-		printf("%s\n", env->content);
-		env = env->next;
+		sort_list(&env);
+		while (env)
+		{
+			printf("%s\n", env->content);
+			env = env->next;
+		}
 	}
-}
-
-char *get_var_from_env(t_list *env_list, char *var_name)
-{
-	while(ft_strnstr(env_list->content, var_name, ft_strlen(env_list->content)) == NULL && env_list->next)
-		env_list = env_list ->next;
-	if (!env_list->next)
-		return NULL;
-	return env_list->content;
-}
-
-void set_var_in_env(t_list **env_list, char *var_name, char *new_var_name)
-{
-	t_list *p;
-	p = *env_list;
-	while (ft_strnstr(p->content, var_name, ft_strlen(p->content)) == NULL && p->next)
-		p = p->next;
-	if (!p->next)
-		return ;
-	free(p->content);
-	p->content = ft_strdup(new_var_name);
+	else
+	{
+		ft_lstadd_front(&env, ft_lstnew(arg));
+		sort_list(&env);
+		while (env)
+		{
+			printf("%s\n", env->content);
+			env = env->next;
+		}
+	}
 }
 
 void ft_cd(char *path, t_list *env_list)
 {
-	char **old_wd;
+	char *old_wd;
 	char current_wd[PATH_MAX];
 	char buffer[PATH_MAX];
 	if (ft_strcmp("-", path) == 0)
 	{
 		getcwd(current_wd, sizeof(current_wd));
-		old_wd = ft_split(get_var_from_env(env_list, "OLDPWD"), '=');
-		if (chdir(old_wd[1]) == -1)
+		old_wd = getenv("OLDPWD");
+		if (chdir(old_wd) == -1)
 			perror("Error: ");
-		char *currenct_wd_path = ft_strjoin("OLDPWD=", current_wd);
-		set_var_in_env(&env_list, "OLDPWD", currenct_wd_path);
+		ft_setenv(&env_list, "OLDPWD", current_wd);
 		getcwd(buffer, sizeof(buffer));
-		char *new_wd = ft_strjoin("PWD=", buffer);
-		set_var_in_env(&env_list, "PWD", new_wd);
+		ft_setenv(&env_list, "PWD", buffer);
 	}
 	else if (ft_strcmp("~", path) == 0)
 	{
-		char *temp = ft_split(get_var_from_env(env_list, "HOME"), '=')[1];
+		char *temp = getenv("HOME");
 		if (chdir(temp) == -1)
 			perror("Error ");
 	}
 	else
-	{
-		
-	}
+		if (chdir(path) == - 1)
+			return ;
 }
 
 void set_new_wd(t_list **env_list, char *wd_path)
@@ -256,7 +243,7 @@ void set_new_wd(t_list **env_list, char *wd_path)
 	(*env_list)->content = new_wd;
 }
 
-void ft_unset(char *to_delete, t_list **env_list)
+void ft_unset(t_list **env_list, char *to_delete)
 {
 	t_list	*first;
 	first = *env_list;
@@ -280,6 +267,7 @@ void ft_unset(char *to_delete, t_list **env_list)
 			temp = second;
 			first->next = second->next;
 			free(temp);
+			return ;
 		}
 		first = second;
 		second = second->next;
@@ -316,42 +304,87 @@ void ft_pwd(t_list **env_list)
 	getcwd(working_directory, sizeof(working_directory));
 	printf("%s\n", working_directory);
 }
+
+t_list *ft_getenv(t_list *env_list, char *var_name)
+{
+	char *temp;
+	while (env_list)
+	{
+		temp = ft_split(env_list->content, '=')[0];
+		if (ft_strcmp(temp, var_name) == 0)
+			return (env_list);
+		env_list = env_list ->next;
+	}
+	return NULL;
+}
+void ft_setenv(t_list **env_list, char *var_name, char *var_val)
+{
+	char *var;
+	(void)env_list;
+	t_list *temp;
+	temp = ft_getenv(*env_list, var_name);
+	if (temp == NULL)
+	{
+		var = ft_strjoin(var_name , "=");
+		var = ft_strjoin(var, var_val);
+		ft_lstadd_back(env_list, ft_lstnew(var));
+	}
+	else
+	{
+		ft_unset(env_list, var_name);
+		ft_setenv(env_list, var_name, var_val);
+	}
+
+}
 int main(int ac, char **av, char **env)
 {
 	(void)ac;
 	(void)env;
 	(void)av;
-	char *cmd;
-	cmd = NULL;
+	char *cmd = NULL;
 	signal(SIGQUIT, SIG_IGN);
+	signal(SIGINT, exit);
 	t_list *env_list = get_env_list(env);
-	while (1)
+	while (true)
 	{
-		cmd = readline("promt: ");
+		cmd = get_promt(cmd);
 		if (cmd == NULL)
-			return (0);
-		if (cmd[0] == 'c')
+				exit(EXIT_SUCCESS);
+		if (cmd[0])
 		{
-			ft_pwd(&env_list);
-			ft_cd("~", env_list);
-		
-		ft_pwd(&env_list);
+			if (ft_strnstr(cmd, "=", ft_strlen(cmd)) != NULL)
+			{
+				char **splitted_cmd = ft_split(cmd, '=');
+				ft_setenv(&env_list, splitted_cmd[0], splitted_cmd[1]);
+			}
+				
+			else if (ft_strcmp(cmd, "cd") == 0)
+			{
+				char *path = readline("which path? :");
+				ft_cd(path, env_list);
+			}
+			else if (ft_strcmp(cmd, "export") == 0)
+			{
+				char *to_add;
+				to_add = readline("what to add? :");
+				if (ft_strcmp(to_add, "nothing") != 0)
+					ft_export(env_list, to_add);
+				else
+					ft_export(env_list, NULL);
+			}
+			else if (ft_strcmp(cmd, "env") == 0)
+				ft_env(env_list);
+			else if (ft_strcmp(cmd, "unset") == 0)
+			{
+				char *var_name = readline("what to delete? :");
+				ft_unset(&env_list, var_name);
+			}
+			else if (ft_strcmp(cmd, "pwd") == 0)
+				ft_pwd(&env_list);
+			else if (ft_strcmp(cmd, "exit") == 0)
+				kill(getpid(), SIGINT);
+			else
+				ft_execute(cmd, env);
 		}
-		
 	}
-	
-	// ft_cd("-", env_list);
-	// ft_pwd(&env_list);
-	// while (env_list)
-	// {
-	// 	printf("%s\n", env_list->content);
-	// 	env_list = env_list->next;
-	// }
-	// ft_cd("..", env);
-	// ft_execute(av[1], env);
-	// ft_herdoc(av[1], av[2], env); // it is given a delimeter then reads the input until a line containing the delimeter is seen
-	// ft_echo(av[1], 'n'); // like the echo bash function printf the argument passed to it -n means print the parameter without new line at the end
-	// ft_execute(av[1], env); // excute the commands that can be excuted such as ls / grep / pwd / cat / head / tail ...
-	// ft_redirect_output_2(av[1], "file.", env); // used to redirect the output of a command to a file stream using the following syntax : cmd > file
-	// ft_redirect_output(av[1], "file.txt", env); // used to append the output of a command to a given file using the following syntax : cmd >> file
 }
