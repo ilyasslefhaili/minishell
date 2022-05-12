@@ -6,7 +6,7 @@
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/05 04:58:08 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/11 21:34:05 by ytouate          ###   ########.fr       */
+/*   Updated: 2022/05/12 19:15:51 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,13 +27,9 @@ void ft_echo(char *s, char flag)
 	}
 }
 
-char *get_promt(char *cmd)
+char *get_promt()
 {
-	if (cmd)
-	{
-		free(cmd);
-		cmd = (char *)NULL;
-	}
+	char *cmd;
 	cmd = readline("Exec: ");
 	if (cmd && *cmd)
 		add_history(cmd);
@@ -46,7 +42,11 @@ void sig_handler(int sig)
 	if (sig == SIGQUIT)
 		(void)0;
 	if (sig == SIGINT)
-		exit(EXIT_SUCCESS);
+	{
+		get_promt();
+		rl_on_new_line();
+		rl_redisplay();
+	}
 }
 
 char *get_path(char *cmd)
@@ -224,8 +224,7 @@ void ft_cd(char *path, t_list *env_list)
 	}
 	else if (ft_strcmp("~", path) == 0)
 	{
-		char *temp = getenv("HOME");
-		if (chdir(temp) == -1)
+		if (chdir(getenv("HOME")) == -1)
 			perror("Error ");
 	}
 	else
@@ -245,13 +244,17 @@ void set_new_wd(t_list **env_list, char *wd_path)
 
 void ft_unset(t_list **env_list, char *to_delete)
 {
+
+	
 	t_list	*first;
 	first = *env_list;
 	t_list *temp;
+	
 	char **cmd = ft_split((*env_list)->content, '=');
+	if (cmd[0] == NULL)
+		return ;
 	if (ft_strcmp(cmd[0], to_delete) == 0)
 	{
-
 		temp = *env_list;
 		*env_list =(*env_list) ->next;
 		free(temp);
@@ -305,26 +308,31 @@ void ft_pwd(t_list **env_list)
 	printf("%s\n", working_directory);
 }
 
+// returns the node in env_list that containts var_name if var_name not found it returns NULL;
 t_list *ft_getenv(t_list *env_list, char *var_name)
 {
 	char *temp;
 	while (env_list)
 	{
 		temp = ft_split(env_list->content, '=')[0];
+		if (!temp || !*temp)
+			return NULL;
 		if (ft_strcmp(temp, var_name) == 0)
 			return (env_list);
 		env_list = env_list ->next;
 	}
 	return NULL;
 }
+
+// assign the var_val to var_name and and add it to env_list
 void ft_setenv(t_list **env_list, char *var_name, char *var_val)
 {
 	char *var;
-	(void)env_list;
 	t_list *temp;
 	temp = ft_getenv(*env_list, var_name);
 	if (temp == NULL)
 	{
+		
 		var = ft_strjoin(var_name , "=");
 		var = ft_strjoin(var, var_val);
 		ft_lstadd_back(env_list, ft_lstnew(var));
@@ -334,7 +342,17 @@ void ft_setenv(t_list **env_list, char *var_name, char *var_val)
 		ft_unset(env_list, var_name);
 		ft_setenv(env_list, var_name, var_val);
 	}
-
+}
+void ft_clear_env(t_list **env_list)
+{
+	t_list *temp;
+	while (*env_list)
+	{
+		temp = *env_list;
+		*env_list = (*env_list)->next;
+		free(temp);
+	}
+	free(*env_list);
 }
 int main(int ac, char **av, char **env)
 {
@@ -342,47 +360,54 @@ int main(int ac, char **av, char **env)
 	(void)env;
 	(void)av;
 	char *cmd = NULL;
+	t_list	*temp_env_vars;
+	temp_env_vars = ft_lstnew(ft_strdup(""));
 	signal(SIGQUIT, SIG_IGN);
-	signal(SIGINT, exit);
+	signal(SIGINT, sig_handler);
 	t_list *env_list = get_env_list(env);
 	while (true)
 	{
-		cmd = get_promt(cmd);
+		cmd = get_promt();
 		if (cmd == NULL)
 				exit(EXIT_SUCCESS);
-		if (cmd[0])
+		if (*cmd)
 		{
 			if (ft_strnstr(cmd, "=", ft_strlen(cmd)) != NULL)
+				ft_lstadd_front(&temp_env_vars, ft_lstnew(cmd));
+			else if (ft_strnstr(cmd, "cd", ft_strlen(cmd)) != NULL)
 			{
-				char **splitted_cmd = ft_split(cmd, '=');
-				ft_setenv(&env_list, splitted_cmd[0], splitted_cmd[1]);
-			}
-				
-			else if (ft_strcmp(cmd, "cd") == 0)
-			{
-				char *path = readline("which path? :");
+				char *path = ft_split(cmd, ' ')[1];
 				ft_cd(path, env_list);
 			}
-			else if (ft_strcmp(cmd, "export") == 0)
+			else if (ft_strnstr(cmd, "export", ft_strlen(cmd)) != NULL)
 			{
-				char *to_add;
-				to_add = readline("what to add? :");
-				if (ft_strcmp(to_add, "nothing") != 0)
-					ft_export(env_list, to_add);
-				else
+				char **export_args = ft_split(cmd, ' ');
+				if (export_args[1] == NULL)
 					ft_export(env_list, NULL);
+				t_list *temp = ft_getenv(temp_env_vars, export_args[1]);
+				if (temp)
+				{
+					char **splitted_var = ft_split(temp->content, '=');
+					ft_setenv(&env_list, splitted_var[0], splitted_var[1]);
+				}
 			}
 			else if (ft_strcmp(cmd, "env") == 0)
 				ft_env(env_list);
-			else if (ft_strcmp(cmd, "unset") == 0)
+			else if (ft_strnstr(cmd, "unset", ft_strlen(cmd)) != NULL)
 			{
-				char *var_name = readline("what to delete? :");
-				ft_unset(&env_list, var_name);
+				char **unset_args = ft_split(cmd, ' ');
+				if (unset_args[1] != NULL)
+				{
+					ft_unset(&env_list, unset_args[1]);
+					ft_unset(&temp_env_vars, unset_args[1]);
+				}
+				else
+					printf("unset: Not enough arguments\n");
 			}
 			else if (ft_strcmp(cmd, "pwd") == 0)
 				ft_pwd(&env_list);
 			else if (ft_strcmp(cmd, "exit") == 0)
-				kill(getpid(), SIGINT);
+				exit(EXIT_SUCCESS);
 			else
 				ft_execute(cmd, env);
 		}

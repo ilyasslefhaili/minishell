@@ -6,7 +6,7 @@
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/03 18:01:46 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/09 17:17:11 by ytouate          ###   ########.fr       */
+/*   Updated: 2022/05/12 10:57:54 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,7 @@ static char	*ft_strcpy(char *dst, const char *src)
 
 	saved = dst;
 	while (*src)
-	{
 		*dst++ = *src++;
-	}
 	*dst = '\0';
 	return (saved);
 }
@@ -33,9 +31,7 @@ static char	*ft_strcat(char *dst, const char *src)
 	dst_len = ft_strlen (dst);
 	string = dst + dst_len;
 	while (*src)
-	{
 		*string++ = *src++;
-	}
 	*string = '\0';
 	return (dst);
 }
@@ -70,12 +66,8 @@ int	ft_strchr_gnl(const char *s, int c)
 	if (!s)
 		return (1);
 	while (s[index] && s[index] != (char )c)
-	{
 		index++;
-	}
 	if (s[index] == (char)c)
-	{
 		return (1);
-	}
 	return (0);
 }
