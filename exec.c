@@ -6,7 +6,7 @@
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/05 04:58:08 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/12 20:13:10 by ytouate          ###   ########.fr       */
+/*   Updated: 2022/05/12 21:01:02 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -386,6 +386,20 @@ int main(int ac, char **av, char **env)
 		{
 			if (ft_strnstr(cmd, "=", ft_strlen(cmd)) != NULL)
 				ft_lstadd_front(&temp_env_vars, ft_lstnew(cmd));
+			else if (ft_strnstr(cmd, ">", ft_strlen(cmd)) != NULL)
+			{
+				char *temp = ft_strnstr(cmd, ">>", ft_strlen(cmd));
+				if (temp == NULL)
+				{
+					char **args = ft_split(cmd, '>');
+					ft_redirect_output(args[0], args[1], env);
+				}
+				else
+				{
+					char **args = ft_split(cmd, '>');
+					ft_redirect_output_2(args[0], args[1], env);
+				}
+			}
 			else if (ft_strnstr(cmd, "cd", ft_strlen(cmd)) != NULL)
 			{
 				char *path = ft_split(cmd, ' ')[1];
@@ -417,7 +431,7 @@ int main(int ac, char **av, char **env)
 					printf("unset: Not enough arguments\n");
 			}
 			else if (ft_strcmp(cmd, "pwd") == 0)
-				ft_pwd(&env_list);
+				ft_pwd();
 			else if (ft_strcmp(cmd, "exit") == 0)
 				exit(EXIT_SUCCESS);
 			else
