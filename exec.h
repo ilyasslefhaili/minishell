@@ -6,7 +6,7 @@
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/05 04:54:13 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/12 19:30:53 by ytouate          ###   ########.fr       */
+/*   Updated: 2022/05/16 13:25:16 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,11 @@
 # include <readline/history.h>
 # include <string.h>
 # include <sys/stat.h>
+#include <setjmp.h>
+typedef struct context {
+    int fd[2];
+    int to_be_closed;
+}t_context;
 
 int		get_parts(char	*s, char c);
 void	sort_list(t_list **env_list);

@@ -6,7 +6,7 @@
 #    By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/05/05 05:15:55 by ytouate           #+#    #+#              #
-#    Updated: 2022/05/13 09:17:51 by ytouate          ###   ########.fr        #
+#    Updated: 2022/05/16 14:57:35 by ytouate          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,14 +14,16 @@ CC = gcc
 CFLAGS = -Wall -Wextra -Werror 
 NAME = exec
 LIBFT = ./libft/libft.a
-FILES = exec.c get_next_line.c get_next_line_utils.c
+FILES = exec.c
 O_FILES = $(FILES:.c=.o)
-
+# RL = /goinfre/.brew/Cellar/readline/8.1.2/lib/libreadline.a\
+#  -I /goinfre/.brew/Cellar/readline/8.1.2/include
 all: $(NAME)
 
 $(NAME): $(LIBFT) $(O_FILES)
 	@ar -rc  exec.a $(O_FILES)
-	@$(CC) $(CFLAGS) $(LIBFT) exec.a  -o $(NAME) -lreadline
+	@$(CC) $(CFLAGS) $(LIBFT) exec.a  -o $(NAME) $(RL) -lreadline 
+
 $(LIBFT) : 
 	@cd libft && make && make bonus && cd ..
 clean:

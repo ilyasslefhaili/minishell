@@ -6,13 +6,12 @@
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/05 04:58:08 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/12 21:01:02 by ytouate          ###   ########.fr       */
+/*   Updated: 2022/05/17 13:43:10 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "exec.h"
 #include <limits.h>
-#include "get_next_line.h"
 
 void	ft_echo(char *s, char flag)
 {
@@ -45,9 +44,10 @@ void	sig_handler(int sig)
 		(void)0;
 	if (sig == SIGINT)
 	{
-		get_promt();
 		rl_on_new_line();
 		rl_redisplay();
+		get_promt();
+		return ;
 	}
 }
 
@@ -79,13 +79,12 @@ void	ft_execute(char *cmd, char **env)
 
 	test = ft_split(cmd, ' ');
 	command_path = get_path(test[0]);
-	if (fork() == 0)
-	{
-		if (access(command_path, F_OK) == 0)
-			execve(command_path, test, env);
-		perror("Error: ");
-		exit(EXIT_SUCCESS);
+	if (command_path == NULL){
+		printf("%s:  command not found\n", cmd);
+		return ;
 	}
+	if (fork() == 0)
+		execve(command_path, test, env);
 	wait(NULL);
 }
 
@@ -156,25 +155,35 @@ int	ft_strcmp(char *s, char *str)
 void	ft_herdoc(char *cmd, char *delimeter, char **env)
 {
 	char	*result;
-	int		fd[2];
-
-	pipe(fd);
-	cmd = get_path(cmd);
-	if (cmd == NULL)
-		printf("command not found\n");
-	else
+	char *temp;
+	temp = "";
+	int fd = open("temp", O_CREAT | O_RDWR  , 0644);
+	if (fd == -1)
+		return ;
+	while (1)
 	{
-		while (1)
-		{
-			write(1, "heredoc>", 9);
-			result = get_next_line(0);
-			if (ft_strcmp(ft_strtrim(result, "\n") , delimeter) == 0 || !result)
-				break ;
-			write(fd[1], result, ft_strlen(result));
-		}
-		dup2(fd[0], STDIN_FILENO);
-		ft_execute(cmd, env);
+		result = readline("heredoc>");
+		if (ft_strcmp(ft_strtrim(result, "\n") , delimeter) == 0 || !result)
+			break ;
+		temp = ft_strjoin(temp, result);
+		temp = ft_strjoin(temp, "\n");
+		write(fd, result, ft_strlen(result));
+		write(fd, "\n", ft_strlen(result));
 	}
+	if (cmd != NULL)
+	{
+		fd = open("temp", O_RDONLY);
+		if (fork() == 0)
+		{
+			dup2(fd, STDIN_FILENO);
+			ft_execute(cmd, env);
+			exit(EXIT_SUCCESS);
+		}
+		close(fd);
+		wait(NULL);
+	}
+	else
+		printf("%s", temp);
 }
 
 t_list	*get_env_list(char **env)
@@ -315,7 +324,6 @@ void	ft_pwd(void)
 
 /* returns the node in env_list that containts var_name
 	if var_name not found it returns NULL; */
-
 t_list	*ft_getenv(t_list *env_list, char *var_name)
 {
 	char	*temp;
@@ -351,6 +359,7 @@ void	ft_setenv(t_list **env_list, char *var_name, char *var_val)
 		ft_setenv(env_list, var_name, var_val);
 	}
 }
+
 void	ft_clear_env(t_list **env_list)
 {
 	t_list	*temp;
@@ -375,11 +384,11 @@ int main(int ac, char **av, char **env)
 	cmd = NULL;
 	temp_env_vars = ft_lstnew(ft_strdup(""));
 	signal(SIGQUIT, SIG_IGN);
-	signal(SIGINT, sig_handler);
+	ft_herdoc(av[1], av[2], env);
 	env_list = get_env_list(env);
 	while (true)
 	{
-		cmd = get_promt();
+		cmd = ft_strtrim(get_promt(), " ");
 		if (cmd == NULL)
 			exit(EXIT_SUCCESS);
 		if (*cmd)
@@ -404,6 +413,9 @@ int main(int ac, char **av, char **env)
 			{
 				char *path = ft_split(cmd, ' ')[1];
 				ft_cd(path, env_list);
+				char buffer[1001];
+				getcwd(buffer, sizeof(buffer));
+				printf("%s\n", buffer);
 			}
 			else if (ft_strnstr(cmd, "export", ft_strlen(cmd)) != NULL)
 			{
@@ -428,14 +440,16 @@ int main(int ac, char **av, char **env)
 					ft_unset(&temp_env_vars, unset_args[1]);
 				}
 				else
-					printf("unset: Not enough arguments\n");
+					write(2, "unset: Not enough arguments\n", 29);
 			}
 			else if (ft_strcmp(cmd, "pwd") == 0)
 				ft_pwd();
 			else if (ft_strcmp(cmd, "exit") == 0)
 				exit(EXIT_SUCCESS);
 			else
+			{
 				ft_execute(cmd, env);
+			}
 		}
 	}
 }

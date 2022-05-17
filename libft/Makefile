@@ -6,7 +6,7 @@
 #    By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/11/10 15:12:28 by ytouate           #+#    #+#              #
-#    Updated: 2022/05/11 11:06:39 by ytouate          ###   ########.fr        #
+#    Updated: 2022/05/16 13:56:14 by ytouate          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -69,7 +69,7 @@ OBJS = $(PARTS:.c=.o)
 all : $(NAME)
 
 $(NAME) : $(OBJS)
-	@ar -rc $(NAME) $(OBJS)
+	@ar -rc $(NAME) $(OBJS) 
 
 clean :
 	@rm -f $(OBJS) $(OBBS)
