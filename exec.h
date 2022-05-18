@@ -6,7 +6,7 @@
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/05 04:54:13 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/16 13:25:16 by ytouate          ###   ########.fr       */
+/*   Updated: 2022/05/17 16:09:13 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,9 +39,9 @@ typedef struct context {
     int fd[2];
     int to_be_closed;
 }t_context;
-
+char	*get_path(t_list *env_list, char *cmd);
 int		get_parts(char	*s, char c);
 void	sort_list(t_list **env_list);
+t_list	*ft_getenv(t_list *env_list, char *var_name);
 void	ft_setenv(t_list **env_list, char *var_name, char *var_val);
-// char	*get_next_line(int fd);
 #endif
