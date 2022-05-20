@@ -6,7 +6,7 @@
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/19 12:08:28 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/19 21:38:50 by ytouate          ###   ########.fr       */
+/*   Updated: 2022/05/20 09:34:47 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ int main(int ac, char **av, char **env)
             else if (ft_strcmp(temp[0], "exit") == 0)
                 exit(EXIT_SUCCESS);
             else
-                ft_execute(temp, env, env_list);
+                ft_execute(arg, env, env_list);
         }
     }
 }
