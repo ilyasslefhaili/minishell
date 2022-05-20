@@ -1,19 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   minishell.h                                        :+:      :+:    :+:   */
+/*   ft_putnbr_fd.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
+/*   By: ilefhail <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/05/19 11:29:35 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/19 13:12:47 by ytouate          ###   ########.fr       */
+/*   Created: 2021/11/15 20:46:08 by ilefhail          #+#    #+#             */
+/*   Updated: 2021/11/16 18:28:22 by ilefhail         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+#include "libft.h"
 
-#ifndef MINISHELL_H
-#define MINISHELL_H
-#include "./execution/exec.h"
-#include "./parsing/parsing.h"
-#include "./libft/libft.h"
+void	ft_putnbr_fd(int nb, int fd)
+{
+	long	e;
 
-#endif
+	e = nb;
+	if (e < 0)
+	{
+		write(fd, "-", 1);
+		e *= -1;
+	}
+	if (e <= 9)
+	{
+		ft_putchar_fd(e + '0', fd);
+	}
+	else
+	{
+		ft_putnbr_fd(e / 10, fd);
+		ft_putnbr_fd(e % 10, fd);
+	}
+}

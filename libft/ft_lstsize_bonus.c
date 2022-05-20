@@ -1,19 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   minishell.h                                        :+:      :+:    :+:   */
+/*   ft_lstsize_bonus.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
+/*   By: ilefhail <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/05/19 11:29:35 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/19 13:12:47 by ytouate          ###   ########.fr       */
+/*   Created: 2021/11/17 14:45:21 by ilefhail          #+#    #+#             */
+/*   Updated: 2021/11/19 18:46:53 by ilefhail         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+#include "libft.h"
 
-#ifndef MINISHELL_H
-#define MINISHELL_H
-#include "./execution/exec.h"
-#include "./parsing/parsing.h"
-#include "./libft/libft.h"
+int	ft_lstsize(t_list *lst)
+{
+	int	i;
 
-#endif
+	i = 0;
+	while (lst != NULL)
+	{
+		lst = lst -> next;
+		i++;
+	}
+	return (i);
+}

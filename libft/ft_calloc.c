@@ -1,19 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   minishell.h                                        :+:      :+:    :+:   */
+/*   ft_calloc.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
+/*   By: ilefhail <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/05/19 11:29:35 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/19 13:12:47 by ytouate          ###   ########.fr       */
+/*   Created: 2021/11/06 14:39:15 by ilefhail          #+#    #+#             */
+/*   Updated: 2021/11/15 16:09:15 by ilefhail         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+#include "libft.h"
 
-#ifndef MINISHELL_H
-#define MINISHELL_H
-#include "./execution/exec.h"
-#include "./parsing/parsing.h"
-#include "./libft/libft.h"
+void	*ft_calloc(size_t count, size_t size)
+{
+	int		i;
+	void	*dest;
 
-#endif
+	i = 0;
+	dest = malloc(count * size);
+	if (dest == NULL)
+		return (NULL);
+	ft_bzero(dest, count * size);
+	return (dest);
+}

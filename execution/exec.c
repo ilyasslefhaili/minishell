@@ -6,7 +6,7 @@
 /*   By: ytouate <ytouate@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/05 04:58:08 by ytouate           #+#    #+#             */
-/*   Updated: 2022/05/19 11:15:46 by ytouate          ###   ########.fr       */
+/*   Updated: 2022/05/19 18:30:01 by ytouate          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,18 +14,17 @@
 #include <limits.h>
 
 // s: the string to be printed // flag = -n flag to print s without newline;
-void	ft_echo(char *s, char flag)
+void	ft_echo(char **s)
 {
-	int	i;
-
-	i = 0;
-	if (flag == 'n')
-		write(1, s, ft_strlen(s));
-	else
-	{
-		write(1, s, ft_strlen(s));
-		write(1, "\n", 1);
-	}
+	for (int i = 0; s[i]; i++)
+		printf("%s\n", s[i]);
+	// if (flag == 'n')
+	// 	write(1, s, ft_strlen(s));
+	// else
+	// {
+	// 	write(1, s, ft_strlen(s));
+	// 	write(1, "\n", 1);
+	// }
 }
 
 // getting the promt from the stdout using readline function;
@@ -33,25 +32,25 @@ char	*get_promt(void)
 {
 	char	*cmd;
 
-	cmd = readline("\033[0;34mExec: \033[0m");
+	cmd = readline("\033[0;34mMinishell$> : \033[0m");
 	if (cmd && *cmd)
 		add_history(cmd);
 	return (cmd);
 }
 
-// void	sig_handler(int sig)
-// {
-// 	(void)sig;
-// 	if (sig == SIGQUIT)
-// 		(void)0;
-// 	if (sig == SIGINT)
-// 	{
-// 		rl_on_new_line();
-// 		rl_redisplay();
-// 		get_promt();
-// 		return ;
-// 	}
-// }
+void	sig_handler(int sig)
+{
+	(void)sig;
+	if (sig == SIGQUIT)
+		(void)0;
+	if (sig == SIGINT)
+	{
+		rl_on_new_line();
+		rl_redisplay();
+		get_promt();
+		return ;
+	}
+}
 
 // gets the path of an command returns NULL if the path not found
 char	*get_path(t_list *env_list, char *cmd)
@@ -100,23 +99,21 @@ int check_cmd(char **cmd, char **env)
 }
 
 // excutes commands
-void	ft_execute(char *cmd, char **env, t_list *env_list)
+void	ft_execute(char **cmd, char **env, t_list *env_list)
 {
-	char	**test;
 	char	*command_path;
 
-	test = ft_split(cmd, ' ');
-	command_path = get_path(env_list, test[0]);
-	if (test[0][0] == '/' || test[0][0] == '.')
-		check_cmd(test, env);
+	command_path = get_path(env_list, cmd[0]);
+	if (cmd[0][0] == '/' || cmd[0][0] == '.')
+		check_cmd(cmd, env);
 	else
 	{
 		if (command_path == NULL){
-			printf("%s:  command not found\n", cmd);
+			printf("%s:  command not found\n", cmd[0]);
 			return ;
 		}
 		if (fork() == 0)
-			execve(command_path, test, env);
+			execve(command_path, cmd, env);
 		wait(NULL);
 	}
 }
@@ -213,7 +210,9 @@ void	ft_herdoc(char *cmd, char *delimeter, char **env, t_list *env_list)
 		if (fork() == 0)
 		{
 			dup2(fd, STDIN_FILENO);
-			ft_execute(cmd, env, env_list);
+			(void)env;
+			(void)env_list;
+			// ft_execute(cmd, env, env_list);
 			exit(EXIT_SUCCESS);
 		}
 		close(fd);
@@ -285,8 +284,7 @@ void	ft_cd(char *path, t_list *env_list)
 		if(old_wd)
 		{
 			char *path = ft_split(old_wd->content, '=')[1];
-			if (chdir(path) == -1)
-				perror("Error: ");
+			chdir(path);
 			ft_setenv(&env_list, "OLDPWD", current_wd);
 			getcwd(buffer, sizeof(buffer)); 
 			ft_setenv(&env_list, "PWD", buffer);
@@ -296,10 +294,12 @@ void	ft_cd(char *path, t_list *env_list)
 	}
 	else if (ft_strcmp("~", path) == 0)
 	{
+		char *home_path = ft_split(ft_getenv(env_list, "HOME")->content, '=')[1];
 		getcwd(current_wd, sizeof(current_wd));
-		if (chdir(getenv("HOME")) == -1)
-			perror("Error ");
+		chdir(home_path);
 		ft_setenv(&env_list, "OLDPWD", current_wd);
+		printf("here\n");
+		return ;
 	}
 	else
 	{
@@ -416,86 +416,86 @@ void	ft_setenv(t_list **env_list, char *var_name, char *var_val)
 	}
 }
 
-int main(int ac, char **av, char **env)
-{
-	char	*cmd;
-	t_list	*temp_env_vars;
-	t_list	*env_list;
+// int main(int ac, char **av, char **env)
+// {
+// 	char	*cmd;
+// 	t_list	*temp_env_vars;
+// 	t_list	*env_list;
 	
-	(void)ac;
-	(void)av;
-	cmd = NULL;
-	temp_env_vars = ft_lstnew(ft_strdup(""));
-	signal(SIGQUIT, SIG_IGN);
-	// signal(SIGINT, sig_handler);
-	env_list = get_env_list(env);
-	while (true)
-	{
-		cmd = ft_strtrim(get_promt(), " ");
-		if (cmd == NULL)
-			exit(EXIT_SUCCESS);
-		if (*cmd)
-		{
-			if (ft_strnstr(cmd, "=", ft_strlen(cmd)) != NULL)
-				ft_lstadd_front(&temp_env_vars, ft_lstnew(cmd));
-			else if (ft_strnstr(cmd, ">", ft_strlen(cmd)) != NULL)
-			{
-				char *temp = ft_strnstr(cmd, ">>", ft_strlen(cmd));
-				if (temp == NULL)
-				{
-					char **args = ft_split(cmd, '>');
-					ft_redirect_output(args[0], args[1], env, env_list);
-				}
-				else
-				{
-					char **args = ft_split(cmd, '>');
-					ft_redirect_output_2(args[0], args[1], env, env_list);
-				}
-			}
-			else if (ft_strnstr(cmd, "cd", ft_strlen(cmd)) != NULL)
-			{
-				char *path = ft_split(cmd, ' ')[1];
-				ft_cd(path, env_list);
-			}
-			else if (ft_strnstr(cmd, "export", ft_strlen(cmd)) != NULL)
-			{
-				char **export_args = ft_split(cmd, ' ');
-				if (export_args[1] == NULL)
-					ft_export(env_list, NULL);
-				t_list *temp = ft_getenv(temp_env_vars, export_args[1]);
-				if (temp)
-				{
-					char **splitted_var = ft_split(temp->content, '=');
-					ft_setenv(&env_list, splitted_var[0], splitted_var[1]);
-				}
-			}
-			else if (ft_strcmp(cmd, "env") == 0)
-				ft_env(env_list);
-			else if (ft_strnstr(cmd, "unset", ft_strlen(cmd)) != NULL)
-			{
-				char **unset_args = ft_split(cmd, ' ');
-				if (unset_args[1] != NULL)
-				{
-					ft_unset(&env_list, unset_args[1]);
-					ft_unset(&temp_env_vars, unset_args[1]);
-				}
-				else
-					write(2, "unset: Not enough arguments\n", 29);
-			}
-			else if (ft_strcmp(cmd, "pwd") == 0)
-				ft_pwd();
-			else if (ft_strcmp(cmd, "exit") == 0)
-				exit(EXIT_SUCCESS);
-			else if (ft_strnstr(cmd, "echo", ft_strlen(cmd)) != NULL)
-			{
-				int i = 0;
-				for (; i < (int)ft_strlen(cmd); i++)
-					if (cmd[i] == ' ')
-						break;
-				ft_echo(cmd+ ++i, '\n');
-			}
-			else
-				ft_execute(cmd, env, env_list);
-		}
-	}
-}
+// 	(void)ac;
+// 	(void)av;
+// 	cmd = NULL;
+// 	temp_env_vars = ft_lstnew(ft_strdup(""));
+// 	signal(SIGQUIT, SIG_IGN);
+// 	signal(SIGINT, sig_handler);
+// 	env_list = get_env_list(env);
+// 	while (true)
+// 	{
+// 		cmd = ft_strtrim(get_promt(), " ");
+// 		if (cmd == NULL)
+// 			exit(EXIT_SUCCESS);
+// 		if (*cmd)
+// 		{
+// 			if (ft_strnstr(cmd, "=", ft_strlen(cmd)) != NULL)
+// 				ft_lstadd_front(&temp_env_vars, ft_lstnew(cmd));
+// 			else if (ft_strnstr(cmd, ">", ft_strlen(cmd)) != NULL)
+// 			{
+// 				char *temp = ft_strnstr(cmd, ">>", ft_strlen(cmd));
+// 				if (temp == NULL)
+// 				{
+// 					char **args = ft_split(cmd, '>');
+// 					ft_redirect_output(args[0], args[1], env, env_list);
+// 				}
+// 				else
+// 				{
+// 					char **args = ft_split(cmd, '>');
+// 					ft_redirect_output_2(args[0], args[1], env, env_list);
+// 				}
+// 			}
+// 			else if (ft_strnstr(cmd, "cd", ft_strlen(cmd)) != NULL)
+// 			{
+// 				char *path = ft_split(cmd, ' ')[1];
+// 				ft_cd(path, env_list);
+// 			}
+// 			else if (ft_strnstr(cmd, "export", ft_strlen(cmd)) != NULL)
+// 			{
+// 				char **export_args = ft_split(cmd, ' ');
+// 				if (export_args[1] == NULL)
+// 					ft_export(env_list, NULL);
+// 				t_list *temp = ft_getenv(temp_env_vars, export_args[1]);
+// 				if (temp)
+// 				{
+// 					char **splitted_var = ft_split(temp->content, '=');
+// 					ft_setenv(&env_list, splitted_var[0], splitted_var[1]);
+// 				}
+// 			}
+// 			else if (ft_strcmp(cmd, "env") == 0)
+// 				ft_env(env_list);
+// 			else if (ft_strnstr(cmd, "unset", ft_strlen(cmd)) != NULL)
+// 			{
+// 				char **unset_args = ft_split(cmd, ' ');
+// 				if (unset_args[1] != NULL)
+// 				{
+// 					ft_unset(&env_list, unset_args[1]);
+// 					ft_unset(&temp_env_vars, unset_args[1]);
+// 				}
+// 				else
+// 					write(2, "unset: Not enough arguments\n", 29);
+// 			}
+// 			else if (ft_strcmp(cmd, "pwd") == 0)
+// 				ft_pwd();
+// 			else if (ft_strcmp(cmd, "exit") == 0)
+// 				exit(EXIT_SUCCESS);
+// 			else if (ft_strnstr(cmd, "echo", ft_strlen(cmd)) != NULL)
+// 			{
+// 				int i = 0;
+// 				for (; i < (int)ft_strlen(cmd); i++)
+// 					if (cmd[i] == ' ')
+// 						break;
+// 				ft_echo(cmd+ ++i, '\n');
+// 			}
+// 			else
+// 				ft_execute(cmd, env, env_list);
+// 		}
+// 	}
+// }
